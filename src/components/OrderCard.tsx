@@ -29,7 +29,12 @@ export const OrderCard = ({ order, onStatusUpdate, index }: OrderCardProps) => {
         >
           <Card className="w-full animate-fadeIn cursor-move">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-semibold">Pedido #{order.id}</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-lg font-semibold">Pedido #{order.id}</CardTitle>
+                <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                  {order.origin}
+                </span>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
