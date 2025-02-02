@@ -1,27 +1,39 @@
+import { useState } from "react";
+import { SectorColumn } from "./components/SectorColumn";
+import { INITIAL_ORDERS, SECTORS, OrderStatus } from "./types/orders";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const App = () => {
+  const [orders, setOrders] = useState(INITIAL_ORDERS);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+  const handleStatusUpdate = (id: number, newStatus: OrderStatus) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === id ? { ...order, status: newStatus } : order
+      )
+    );
+  };
+
+  return (
+    <>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-[1400px] mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-gray-800">Monitor de Pedidos</h1>
+          <div className="flex flex-wrap gap-8">
+            {SECTORS.map((sector) => (
+              <SectorColumn
+                key={sector}
+                sector={sector}
+                orders={orders}
+                onStatusUpdate={handleStatusUpdate}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </>
+  );
+};
 
 export default App;
