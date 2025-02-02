@@ -16,6 +16,18 @@ export const INITIAL_ORDERS: Order[] = [
   { id: 3, setor: 'Pratos', itens: 'Filé à Parmegiana, Arroz', status: 'Chegou', origin: 'Comanda Mesa' },
   { id: 4, setor: 'Pratos', itens: 'Lasanha à Bolonhesa', status: 'Fazendo', origin: 'Auto Atendimento' },
   { id: 5, setor: 'Pratos', itens: 'Picanha, Arroz, Farofa', status: 'Concluído', origin: 'Card Ifood' },
+  { id: 21, setor: 'Pratos', itens: 'Frango à Milanesa, Purê de Batatas', status: 'Chegou', origin: 'Delivery AnoteJá' },
+  { id: 22, setor: 'Pratos', itens: 'Bife à Cavalo, Arroz, Feijão', status: 'Fazendo', origin: 'Comanda Mesa' },
+  { id: 23, setor: 'Pratos', itens: 'Espaguete à Bolonhesa', status: 'Concluído', origin: 'Auto Atendimento' },
+  { id: 24, setor: 'Pratos', itens: 'Risoto de Camarão', status: 'Chegou', origin: 'Card Ifood' },
+  { id: 25, setor: 'Pratos', itens: 'Moqueca de Peixe, Arroz', status: 'Fazendo', origin: 'Delivery AnoteJá' },
+  { id: 26, setor: 'Pratos', itens: 'Costela no Bafo, Mandioca', status: 'Concluído', origin: 'Comanda Mesa' },
+  { id: 27, setor: 'Pratos', itens: 'Frango Xadrez, Arroz Chop Suey', status: 'Chegou', origin: 'Auto Atendimento' },
+  { id: 28, setor: 'Pratos', itens: 'Nhoque ao Sugo', status: 'Fazendo', origin: 'Card Ifood' },
+  { id: 29, setor: 'Pratos', itens: 'Bife à Parmegiana, Arroz, Batata Frita', status: 'Concluído', origin: 'Delivery AnoteJá' },
+  { id: 30, setor: 'Pratos', itens: 'Peixe Grelhado, Legumes', status: 'Chegou', origin: 'Comanda Mesa' },
+  { id: 31, setor: 'Pratos', itens: 'Rabada com Polenta', status: 'Fazendo', origin: 'Auto Atendimento' },
+  { id: 32, setor: 'Pratos', itens: 'Carne de Panela, Arroz, Farofa', status: 'Concluído', origin: 'Card Ifood' },
   
   // Bebidas
   { id: 6, setor: 'Bebidas', itens: 'Suco de Laranja', status: 'Fazendo', origin: 'Comanda Mesa' },
