@@ -1,5 +1,6 @@
 import { Order, OrderStatus, getStatusColor } from "@/types/orders";
 import { OrderCard } from "./OrderCard";
+import { Droppable } from "@hello-pangea/dnd";
 
 interface StatusColumnProps {
   status: OrderStatus;
@@ -9,15 +10,29 @@ interface StatusColumnProps {
 
 export const StatusColumn = ({ status, orders, onStatusUpdate }: StatusColumnProps) => {
   return (
-    <div className="flex flex-col gap-4">
-      <div className={`${getStatusColor(status)} p-2 rounded-md`}>
+    <div className="flex-1 min-w-[350px] bg-gray-50 rounded-lg p-4">
+      <div className={`${getStatusColor(status)} p-2 rounded-md mb-4`}>
         <h3 className="font-semibold text-center">{status}</h3>
       </div>
-      <div className="space-y-4">
-        {orders.map((order) => (
-          <OrderCard key={order.id} order={order} onStatusUpdate={onStatusUpdate} />
-        ))}
-      </div>
+      <Droppable droppableId={status}>
+        {(provided) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className="space-y-4 min-h-[200px]"
+          >
+            {orders.map((order, index) => (
+              <OrderCard 
+                key={order.id} 
+                order={order} 
+                onStatusUpdate={onStatusUpdate}
+                index={index}
+              />
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
     </div>
   );
 };
