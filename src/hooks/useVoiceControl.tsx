@@ -9,19 +9,37 @@ interface UseVoiceControlProps {
 export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [isSpeakingEnabled, setIsSpeakingEnabled] = useState(true);
 
   const speak = useCallback((text: string) => {
+    if (!isSpeakingEnabled) return;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'pt-BR';
     speechSynthesis.speak(utterance);
-  }, []);
+  }, [isSpeakingEnabled]);
 
   const announceNewOrder = useCallback((order: Order) => {
+    if (!isSpeakingEnabled) return;
     const text = `Chegou pedido número ${order.id}. Itens: ${order.itens}`;
     speak(text);
-  }, [speak]);
+  }, [speak, isSpeakingEnabled]);
 
   const handleVoiceCommand = useCallback((command: string) => {
+    const lowerCommand = command.toLowerCase();
+    
+    // Handle voice toggle commands
+    if (lowerCommand.includes('parar de falar') || lowerCommand.includes('parar anúncios')) {
+      setIsSpeakingEnabled(false);
+      speak('Anúncios de voz desativados');
+      return;
+    }
+    
+    if (lowerCommand.includes('voltar a falar') || lowerCommand.includes('retomar anúncios')) {
+      setIsSpeakingEnabled(true);
+      speak('Anúncios de voz ativados');
+      return;
+    }
+
     // Extract order number from voice command
     const numberMatch = command.match(/pedido (\d+)/i) || command.match(/número (\d+)/i);
     const orderId = numberMatch ? parseInt(numberMatch[1]) : null;
@@ -35,15 +53,15 @@ export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps
     }
 
     // Handle "repete" command
-    if (command.toLowerCase().includes('repete')) {
+    if (lowerCommand.includes('repete')) {
       speak(`Pedido número ${orderId}. Itens: ${order.itens}`);
     }
     // Handle "itens" command
-    else if (command.includes('itens') || command.includes('items')) {
+    else if (lowerCommand.includes('itens') || lowerCommand.includes('items')) {
       speak(`Itens do pedido ${orderId}: ${order.itens}`);
     }
     // Handle "fazendo" command
-    else if (command.toLowerCase().includes('fazendo')) {
+    else if (lowerCommand.includes('fazendo')) {
       onStatusUpdate(orderId, 'Fazendo');
       speak(`Status do pedido ${orderId} atualizado para Fazendo`);
     }
@@ -81,6 +99,7 @@ export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps
     transcript,
     speak,
     startListening,
-    announceNewOrder
+    announceNewOrder,
+    isSpeakingEnabled
   };
 };
