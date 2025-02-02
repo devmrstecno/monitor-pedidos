@@ -23,7 +23,7 @@ export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps
 
   const handleVoiceCommand = useCallback((command: string) => {
     // Extract order number from voice command
-    const numberMatch = command.match(/pedido (\d+)/i);
+    const numberMatch = command.match(/pedido (\d+)/i) || command.match(/número (\d+)/i);
     const orderId = numberMatch ? parseInt(numberMatch[1]) : null;
 
     if (!orderId) return;
@@ -34,9 +34,16 @@ export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps
       return;
     }
 
-    if (command.includes('itens') || command.includes('items')) {
+    // Handle "repete" command
+    if (command.toLowerCase().includes('repete')) {
+      speak(`Pedido número ${orderId}. Itens: ${order.itens}`);
+    }
+    // Handle "itens" command
+    else if (command.includes('itens') || command.includes('items')) {
       speak(`Itens do pedido ${orderId}: ${order.itens}`);
-    } else if (command.toLowerCase().includes('fazendo')) {
+    }
+    // Handle "fazendo" command
+    else if (command.toLowerCase().includes('fazendo')) {
       onStatusUpdate(orderId, 'Fazendo');
       speak(`Status do pedido ${orderId} atualizado para Fazendo`);
     }
