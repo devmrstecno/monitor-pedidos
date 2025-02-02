@@ -1,5 +1,5 @@
 export type OrderStatus = 'Chegou' | 'Fazendo' | 'Concluído';
-export type OrderOrigin = 'Delivery AnoteJá' | 'Card Ifood' | 'Comanda Mesa' | 'Auto Atendimento';
+export type OrderOrigin = 'Delivery AnoteJá' | 'Card Ifood' | 'Comanda Mesa' | 'Auto Atendimento' | 'Cardapio Mesa';
 
 export type Order = {
   id: number;
