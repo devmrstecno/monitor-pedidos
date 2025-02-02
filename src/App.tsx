@@ -19,7 +19,7 @@ const App = () => {
     <>
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-[1400px] mx-auto">
-          <h1 className="text-3xl font-bold mb-8 text-gray-800">Monitor de Pedidos</h1>
+          <h1 className="text-3xl font-bold mb-8 text-gray-800">Monitor de Pedidos MRS Tecno</h1>
           
           <Tabs defaultValue="Pratos" className="w-full">
             <TabsList className="mb-8">
