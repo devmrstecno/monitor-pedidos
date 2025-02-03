@@ -18,6 +18,10 @@ export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps
     speechSynthesis.speak(utterance);
   }, [isSpeakingEnabled]);
 
+  const toggleSpeaking = useCallback(() => {
+    setIsSpeakingEnabled(prev => !prev);
+  }, []);
+
   const announceNewOrder = useCallback((order: Order) => {
     if (!isSpeakingEnabled) return;
     const text = `Chegou pedido número ${order.id}. Itens: ${order.itens}`;
@@ -100,6 +104,7 @@ export const useVoiceControl = ({ orders, onStatusUpdate }: UseVoiceControlProps
     speak,
     startListening,
     announceNewOrder,
-    isSpeakingEnabled
+    isSpeakingEnabled,
+    toggleSpeaking
   };
 };

@@ -19,7 +19,7 @@ const App = () => {
     );
   };
 
-  const { isListening, transcript, startListening, announceNewOrder, isSpeakingEnabled } = useVoiceControl({
+  const { isListening, transcript, startListening, announceNewOrder, isSpeakingEnabled, toggleSpeaking } = useVoiceControl({
     orders,
     onStatusUpdate: handleStatusUpdate,
   });
@@ -47,6 +47,7 @@ const App = () => {
             <h1 className="text-3xl font-bold text-gray-800">Monitor de Pedidos MRS Tecno</h1>
             <div className="flex gap-4">
               <Button
+                onClick={toggleSpeaking}
                 variant={isSpeakingEnabled ? "default" : "destructive"}
                 className="flex items-center gap-2"
               >
