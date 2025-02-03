@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVoiceControl } from "./hooks/useVoiceControl";
 import { Button } from "./components/ui/button";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, VolumeX, Volume2 } from "lucide-react";
 
 const App = () => {
   const [orders, setOrders] = useState(INITIAL_ORDERS);
@@ -19,7 +19,7 @@ const App = () => {
     );
   };
 
-  const { isListening, transcript, startListening, announceNewOrder } = useVoiceControl({
+  const { isListening, transcript, startListening, announceNewOrder, isSpeakingEnabled } = useVoiceControl({
     orders,
     onStatusUpdate: handleStatusUpdate,
   });
@@ -45,14 +45,23 @@ const App = () => {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Monitor de Pedidos MRS Tecno</h1>
-            <Button
-              onClick={startListening}
-              variant={isListening ? "destructive" : "default"}
-              className="flex items-center gap-2"
-            >
-              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              {isListening ? "Parar" : "Iniciar"} Comando de Voz
-            </Button>
+            <div className="flex gap-4">
+              <Button
+                variant={isSpeakingEnabled ? "default" : "destructive"}
+                className="flex items-center gap-2"
+              >
+                {isSpeakingEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                {isSpeakingEnabled ? "Anúncios Ativos" : "Anúncios Desativados"}
+              </Button>
+              <Button
+                onClick={startListening}
+                variant={isListening ? "destructive" : "default"}
+                className="flex items-center gap-2"
+              >
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                {isListening ? "Parar" : "Iniciar"} Comando de Voz
+              </Button>
+            </div>
           </div>
           
           {transcript && (
