@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef } from "react";
+import { Routes, Route, Link } from "react-router-dom";
 import { SectorColumn } from "./components/SectorColumn";
 import { INITIAL_ORDERS, SECTORS, OrderStatus, Order } from "./types/orders";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,12 +9,11 @@ import { useVoiceControl } from "./hooks/useVoiceControl";
 import { Button } from "./components/ui/button";
 import { Mic, MicOff, VolumeX, Volume2, Settings } from "lucide-react";
 import { fetchOrdersFromDb } from "./services/dbService";
-import { Routes, Route, Link } from "react-router-dom";
 import { toast } from "./components/ui/use-toast";
 import ConfigPage from "./pages/Config";
 
-const MainContent = () => {
-  const [orders, setOrders] = useState(INITIAL_ORDERS);
+function App() {
+  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const previousOrdersRef = useRef<Order[]>([]);
 
   const handleStatusUpdate = (id: number, newStatus: OrderStatus) => {
@@ -29,13 +29,11 @@ const MainContent = () => {
     onStatusUpdate: handleStatusUpdate,
   });
 
-  // Fetch orders from database for "Pratos" sector
   useEffect(() => {
     const loadDbOrders = async () => {
       try {
         const dbOrders = await fetchOrdersFromDb();
         setOrders(prev => {
-          // Replace only "Pratos" orders with database orders
           const otherOrders = prev.filter(order => order.setor !== 'Pratos');
           return [...otherOrders, ...dbOrders];
         });
@@ -54,7 +52,6 @@ const MainContent = () => {
     }
   }, []);
 
-  // Check for new orders and announce them
   useEffect(() => {
     const newOrders = orders.filter(
       order => 
@@ -69,7 +66,7 @@ const MainContent = () => {
     previousOrdersRef.current = orders;
   }, [orders, announceNewOrder]);
 
-  return (
+  const HomePage = () => (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-[1400px] mx-auto">
         <div className="flex justify-between items-center mb-8">
@@ -128,18 +125,16 @@ const MainContent = () => {
       </div>
     </div>
   );
-};
 
-const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<MainContent />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/config" element={<ConfigPage />} />
       </Routes>
       <Toaster />
     </>
   );
-};
+}
 
 export default App;
