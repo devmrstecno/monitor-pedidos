@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface DbConfig {
   host: string;
@@ -13,6 +14,12 @@ interface DbConfig {
   password: string;
   database: string;
   table: string;
+}
+
+interface DbConnection {
+  isConnected: boolean;
+  databases: string[];
+  tables: string[];
 }
 
 const ConfigPage = () => {
@@ -26,6 +33,88 @@ const ConfigPage = () => {
       table: ''
     };
   });
+
+  const [connection, setConnection] = useState<DbConnection>({
+    isConnected: false,
+    databases: [],
+    tables: []
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleConnect = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/api/mysql/connect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          host: config.host,
+          user: config.user,
+          password: config.password
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha na conexão');
+      }
+
+      const data = await response.json();
+      setConnection({
+        isConnected: true,
+        databases: data.databases,
+        tables: []
+      });
+
+      toast({
+        title: "Conexão estabelecida",
+        description: "Conexão com o MySQL realizada com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro na conexão",
+        description: "Não foi possível conectar ao banco de dados.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDatabaseSelect = async (dbName: string) => {
+    setConfig(prev => ({ ...prev, database: dbName }));
+    try {
+      const response = await fetch(`http://localhost:3000/api/mysql/tables?database=${dbName}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          host: config.host,
+          user: config.user,
+          password: config.password
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Falha ao carregar tabelas');
+      }
+
+      const data = await response.json();
+      setConnection(prev => ({
+        ...prev,
+        tables: data.tables
+      }));
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as tabelas.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleSave = () => {
     localStorage.setItem('dbConfig', JSON.stringify(config));
@@ -86,30 +175,64 @@ const ConfigPage = () => {
                 placeholder="Digite a senha"
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="database">Banco de Dados</Label>
-              <Input
-                id="database"
-                value={config.database}
-                onChange={(e) => handleChange('database', e.target.value)}
-                placeholder="Nome do banco de dados"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="table">Tabela</Label>
-              <Input
-                id="table"
-                value={config.table}
-                onChange={(e) => handleChange('table', e.target.value)}
-                placeholder="Nome da tabela"
-              />
-            </div>
 
-            <Button onClick={handleSave} className="w-full">
-              Salvar Configurações
+            <Button 
+              onClick={handleConnect} 
+              className="w-full"
+              disabled={isLoading || !config.host || !config.user}
+            >
+              {isLoading ? "Conectando..." : "Conectar ao Banco"}
             </Button>
+
+            {connection.isConnected && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="database">Selecione o Banco de Dados</Label>
+                  <Select
+                    value={config.database}
+                    onValueChange={(value) => handleDatabaseSelect(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione um banco" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {connection.databases.map((db) => (
+                        <SelectItem key={db} value={db}>
+                          {db}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {config.database && connection.tables.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="table">Selecione a Tabela</Label>
+                    <Select
+                      value={config.table}
+                      onValueChange={(value) => handleChange('table', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma tabela" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {connection.tables.map((table) => (
+                          <SelectItem key={table} value={table}>
+                            {table}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {config.database && config.table && (
+                  <Button onClick={handleSave} className="w-full">
+                    Salvar Configurações
+                  </Button>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
