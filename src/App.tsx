@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { SectorColumn } from "./components/SectorColumn";
 import { INITIAL_ORDERS, SECTORS, OrderStatus, Order } from "./types/orders";
@@ -5,7 +6,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVoiceControl } from "./hooks/useVoiceControl";
 import { Button } from "./components/ui/button";
-import { Mic, MicOff, VolumeX, Volume2 } from "lucide-react";
+import { Mic, MicOff, VolumeX, Volume2, Settings } from "lucide-react";
+import { fetchOrdersFromDb } from "./services/dbService";
+import { Link } from "react-router-dom";
+import { toast } from "./components/ui/use-toast";
 
 const App = () => {
   const [orders, setOrders] = useState(INITIAL_ORDERS);
@@ -23,6 +27,31 @@ const App = () => {
     orders,
     onStatusUpdate: handleStatusUpdate,
   });
+
+  // Fetch orders from database for "Pratos" sector
+  useEffect(() => {
+    const loadDbOrders = async () => {
+      try {
+        const dbOrders = await fetchOrdersFromDb();
+        setOrders(prev => {
+          // Replace only "Pratos" orders with database orders
+          const otherOrders = prev.filter(order => order.setor !== 'Pratos');
+          return [...otherOrders, ...dbOrders];
+        });
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        toast({
+          title: "Erro ao carregar pedidos",
+          description: "Verifique a configuração do banco de dados.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    if (localStorage.getItem('dbConfig')) {
+      loadDbOrders();
+    }
+  }, []);
 
   // Check for new orders and announce them
   useEffect(() => {
@@ -46,6 +75,12 @@ const App = () => {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800">Monitor de Pedidos MRS Tecno</h1>
             <div className="flex gap-4">
+              <Link to="/config">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Configurações
+                </Button>
+              </Link>
               <Button
                 onClick={toggleSpeaking}
                 variant={isSpeakingEnabled ? "default" : "destructive"}
