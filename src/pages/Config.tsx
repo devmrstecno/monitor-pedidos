@@ -73,6 +73,7 @@ const ConfigPage = () => {
         description: "Conexão com o MySQL realizada com sucesso.",
       });
     } catch (error) {
+      console.error('Erro:', error);
       toast({
         title: "Erro na conexão",
         description: "Não foi possível conectar ao banco de dados.",
