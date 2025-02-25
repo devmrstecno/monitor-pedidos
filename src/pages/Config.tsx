@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface DbConfig {
   host: string;
@@ -44,9 +45,15 @@ const ConfigPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-2xl mx-auto">
+        <div className="mb-6 flex justify-between items-center">
+          <Link to="/" className="text-blue-600 hover:text-blue-800">
+            ← Voltar ao Monitor
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-800">Configuração do Banco de Dados</h1>
+        </div>
         <Card>
           <CardHeader>
-            <CardTitle>Configuração do Banco de Dados</CardTitle>
+            <CardTitle>Configuração MySQL</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
