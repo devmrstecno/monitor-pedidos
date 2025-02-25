@@ -1,3 +1,4 @@
+
 import { Order, OrderStatus, getStatusColor, getStatusHoverColor } from "@/types/orders";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +28,7 @@ export const OrderCard = ({ order, onStatusUpdate, index }: OrderCardProps) => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
         >
-          <Card className="w-full animate-fadeIn cursor-move">
+          <Card className="w-full">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
                 <CardTitle className="text-lg font-semibold">Pedido #{order.id}</CardTitle>
@@ -55,7 +56,7 @@ export const OrderCard = ({ order, onStatusUpdate, index }: OrderCardProps) => {
                         order.status === status
                           ? getStatusColor(status as OrderStatus)
                           : 'bg-gray-100 hover:bg-gray-200'
-                      } ${getStatusHoverColor(status as OrderStatus)} text-gray-800 transition-colors`}
+                      } ${getStatusHoverColor(status as OrderStatus)} transition-colors`}
                       variant="ghost"
                       size="sm"
                     >
