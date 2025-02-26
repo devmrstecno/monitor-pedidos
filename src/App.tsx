@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 
 interface CommandItem {
   cm_numero: string;
-  desc_produto: string;
+  cm_descricao: string;
   localizacao_produto: string;
   quantidade: number;
   obs: string;
@@ -117,7 +117,7 @@ function App() {
           id: parseInt(cm_numero),
           setor: 'Pratos',
           itens: items.map((item: CommandItem) => 
-            `${item.quantidade}x ${item.desc_produto}${item.obs ? ` (${item.obs})` : ''}`
+            `${item.quantidade}x ${item.cm_descricao}${item.obs ? ` (${item.obs})` : ''}`
           ).join(', '),
           status: 'Chegou' as OrderStatus,
           origin: 'Comanda Mesa' as OrderOrigin
