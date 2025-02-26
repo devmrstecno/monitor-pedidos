@@ -83,6 +83,11 @@ app.post('/api/mysql/tables', async (req, res) => {
   }
 });
 
+// Rota de teste para verificar se o servidor está rodando
+app.get('/', (req, res) => {
+  res.json({ message: 'Servidor está rodando!' });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
