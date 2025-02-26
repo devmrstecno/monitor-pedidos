@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import { OrderStatus, SECTORS, Order } from "./types/orders";
+import { OrderStatus, SECTORS, Order, OrderOrigin } from "./types/orders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectorColumn } from "./components/SectorColumn";
 import { Button } from "@/components/ui/button";
@@ -113,14 +113,14 @@ function App() {
 
         console.log('Itens agrupados:', groupedItems);
 
-        const newOrders = Object.entries(groupedItems).map(([cm_numero, items]) => ({
+        const newOrders: Order[] = Object.entries(groupedItems).map(([cm_numero, items]) => ({
           id: parseInt(cm_numero),
           setor: 'Pratos',
           itens: items.map((item: CommandItem) => 
             `${item.quantidade}x ${item.desc_produto}${item.obs ? ` (${item.obs})` : ''}`
           ).join(', '),
           status: 'Chegou' as OrderStatus,
-          origin: 'Comanda Mesa'
+          origin: 'Comanda Mesa' as OrderOrigin
         }));
 
         console.log('Novos pedidos:', newOrders);
