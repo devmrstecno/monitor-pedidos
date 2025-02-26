@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/use-toast";
 interface CommandItem {
   cm_numero: string;
   desc_produto: string;
-  localicao_produto: string;
+  localizacao_produtos: string;
   quantidade: number;
   obs: string;
 }
@@ -90,16 +90,16 @@ function App() {
       });
 
       const data = await response.json();
-      console.log('Dados recebidos do banco:', data); // Log para debug
+      console.log('Dados recebidos do banco:', data);
 
       if (data.success && data.data) {
         // Garantir que data.data é um array
         const items = Array.isArray(data.data) ? data.data : [data.data];
         
         const filteredItems = items.filter((item: CommandItem) => 
-          item.localicao_produto === 'COZINHA'
+          item.localizacao_produtos === 'COZINHA'
         );
-        console.log('Itens filtrados:', filteredItems); // Log para debug
+        console.log('Itens filtrados:', filteredItems);
         setComandaItems(filteredItems);
 
         // Processa os itens filtrados para criar os pedidos
@@ -111,17 +111,19 @@ function App() {
           return acc;
         }, {});
 
-        console.log('Itens agrupados:', groupedItems); // Log para debug
+        console.log('Itens agrupados:', groupedItems);
 
-        const newOrders: Order[] = Object.entries(groupedItems).map(([cm_numero, items]) => ({
+        const newOrders = Object.entries(groupedItems).map(([cm_numero, items]) => ({
           id: parseInt(cm_numero),
           setor: 'Pratos',
-          itens: items.map(item => `${item.quantidade}x ${item.desc_produto}${item.obs ? ` (${item.obs})` : ''}`).join(', '),
-          status: 'Chegou',
+          itens: items.map((item: CommandItem) => 
+            `${item.quantidade}x ${item.desc_produto}${item.obs ? ` (${item.obs})` : ''}`
+          ).join(', '),
+          status: 'Chegou' as OrderStatus,
           origin: 'Comanda Mesa'
         }));
 
-        console.log('Novos pedidos:', newOrders); // Log para debug
+        console.log('Novos pedidos:', newOrders);
         setOrders(newOrders);
       }
     } catch (error) {
