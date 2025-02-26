@@ -45,7 +45,7 @@ const ConfigPage = () => {
   const handleConnect = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/mysql/connect', {
+      const response = await fetch('http://localhost:3000/api/database/test-connection', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,11 +57,12 @@ const ConfigPage = () => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Falha na conexão');
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message || 'Falha na conexão');
       }
 
-      const data = await response.json();
       setConnection({
         isConnected: true,
         databases: data.databases,
@@ -72,11 +73,11 @@ const ConfigPage = () => {
         title: "Conexão estabelecida",
         description: "Conexão com o MySQL realizada com sucesso.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro:', error);
       toast({
         title: "Erro na conexão",
-        description: "Não foi possível conectar ao banco de dados.",
+        description: error.message || "Não foi possível conectar ao banco de dados.",
         variant: "destructive"
       });
     } finally {
@@ -87,7 +88,7 @@ const ConfigPage = () => {
   const handleDatabaseSelect = async (dbName: string) => {
     setConfig(prev => ({ ...prev, database: dbName }));
     try {
-      const response = await fetch(`http://localhost:3000/api/mysql/tables?database=${dbName}`, {
+      const response = await fetch('http://localhost:3000/api/database/get-tables', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,23 +96,25 @@ const ConfigPage = () => {
         body: JSON.stringify({
           host: config.host,
           user: config.user,
-          password: config.password
+          password: config.password,
+          database: dbName
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Falha ao carregar tabelas');
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message || 'Falha ao carregar tabelas');
       }
 
-      const data = await response.json();
       setConnection(prev => ({
         ...prev,
         tables: data.tables
       }));
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erro",
-        description: "Não foi possível carregar as tabelas.",
+        description: error.message || "Não foi possível carregar as tabelas.",
         variant: "destructive"
       });
     }
