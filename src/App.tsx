@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/use-toast";
 interface CommandItem {
   cm_numero: string;
   desc_produto: string;
-  localizacao_produtos: string;
+  localizacao_produto: string;
   quantidade: number;
   obs: string;
 }
@@ -97,7 +97,7 @@ function App() {
         const items = Array.isArray(data.data) ? data.data : [data.data];
         
         const filteredItems = items.filter((item: CommandItem) => 
-          item.localizacao_produtos === 'COZINHA'
+          item.localizacao_produto === 'COZINHA'
         );
         console.log('Itens filtrados:', filteredItems);
         setComandaItems(filteredItems);
