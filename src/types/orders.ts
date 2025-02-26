@@ -10,12 +10,6 @@ export interface Order {
   origin: OrderOrigin;
 }
 
-export const INITIAL_ORDERS: Order[] = [
-  { id: 1, setor: 'Pratos', itens: 'Feijoada, Arroz', status: 'Chegou', origin: 'Delivery AnoteJá' },
-  { id: 2, setor: 'Pratos', itens: 'Strogonoff, Batata Palha', status: 'Fazendo', origin: 'Card Ifood' },
-  { id: 3, setor: 'Pratos', itens: 'Filé à Parmegiana, Arroz', status: 'Concluído', origin: 'Comanda Mesa' }
-];
-
 export const SECTORS = ['Pratos', 'Bebidas', 'Saladas', 'Sobremesas'] as const;
 export const STATUSES: OrderStatus[] = ['Chegou', 'Fazendo', 'Concluído'];
 

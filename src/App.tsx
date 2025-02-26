@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import { OrderStatus, SECTORS } from "./types/orders";
+import { OrderStatus, SECTORS, Order } from "./types/orders";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SectorColumn } from "./components/SectorColumn";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ interface CommandItem {
 
 function App() {
   const [comandaItems, setComandaItems] = useState<CommandItem[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     const fetchComandaItems = async () => {
@@ -48,6 +49,25 @@ function App() {
             item.localicao_produto === 'COZINHA'
           );
           setComandaItems(filteredItems);
+
+          // Processa os itens filtrados para criar os pedidos
+          const groupedItems = filteredItems.reduce((acc: Record<string, CommandItem[]>, item) => {
+            if (!acc[item.cm_numero]) {
+              acc[item.cm_numero] = [];
+            }
+            acc[item.cm_numero].push(item);
+            return acc;
+          }, {});
+
+          const newOrders: Order[] = Object.entries(groupedItems).map(([cm_numero, items]) => ({
+            id: parseInt(cm_numero),
+            setor: 'Pratos',
+            itens: items.map(item => `${item.quantidade}x ${item.desc_produto}${item.obs ? ` (${item.obs})` : ''}`).join(', '),
+            status: 'Chegou',
+            origin: 'Comanda Mesa'
+          }));
+
+          setOrders(newOrders);
         }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
@@ -57,26 +77,12 @@ function App() {
     fetchComandaItems();
   }, []);
 
-  // Agrupa os itens por cm_numero
-  const groupedItems = comandaItems.reduce((acc: Record<string, CommandItem[]>, item) => {
-    if (!acc[item.cm_numero]) {
-      acc[item.cm_numero] = [];
-    }
-    acc[item.cm_numero].push(item);
-    return acc;
-  }, {});
-
-  // Converte os itens agrupados para o formato de Orders
-  const orders = Object.entries(groupedItems).map(([cm_numero, items]) => ({
-    id: parseInt(cm_numero),
-    setor: 'Pratos',
-    itens: items.map(item => `${item.quantidade}x ${item.desc_produto}${item.obs ? ` (${item.obs})` : ''}`).join(', '),
-    status: 'Chegou' as OrderStatus,
-    origin: 'Comanda Mesa'
-  }));
-
   const handleStatusUpdate = (id: number, newStatus: OrderStatus) => {
-    // Implementar atualização de status quando necessário
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === id ? { ...order, status: newStatus } : order
+      )
+    );
   };
 
   const HomePage = () => (
