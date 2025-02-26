@@ -1,11 +1,10 @@
 
 import express from 'express';
 import cors from 'cors';
-import mysql from 'mysql2/promise';
+import mysql from 'mysql2';
 
 const app = express();
 
-// Configuração mais específica do CORS
 app.use(cors({
   origin: ['http://localhost:8081', 'http://127.0.0.1:8081'],
   methods: ['GET', 'POST'],
@@ -13,77 +12,122 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Rota para testar conexão e listar bancos de dados
-app.post('/api/mysql/connect', async (req, res) => {
-  const { host, user, password } = req.body;
-  console.log('Tentando conectar com:', { host, user });
+// Função para criar conexão MySQL
+const createConnection = (connectionData: any) => {
+  return mysql.createConnection({
+    host: connectionData.host,
+    user: connectionData.user,
+    password: connectionData.password,
+    database: connectionData.database,
+    port: 3306
+  });
+};
 
-  if (!host || !user) {
-    return res.status(400).json({ error: 'Host e usuário são obrigatórios' });
-  }
-
-  try {
-    const connection = await mysql.createConnection({
-      host,
-      user,
-      password,
-      port: 3306 // Porta padrão do MySQL
-    });
-
-    console.log('Conexão estabelecida com sucesso');
-
-    const [results] = await connection.query('SHOW DATABASES');
-    const databases = (results as any[]).map(row => row.Database);
-    
-    await connection.end();
-
-    res.json({ databases });
-  } catch (error: any) {
-    console.error('Erro detalhado na conexão:', error);
-    let errorMessage = 'Falha na conexão com o banco de dados';
-    
-    if (error.code === 'ECONNREFUSED') {
-      errorMessage = 'Não foi possível conectar ao MySQL. Verifique se o serviço está rodando.';
-    } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
-      errorMessage = 'Acesso negado. Verifique usuário e senha.';
+// Rota para testar conexão e listar bancos
+app.post('/api/database/test-connection', (req, res) => {
+  const connection = createConnection(req.body);
+  
+  connection.connect((err) => {
+    if (err) {
+      console.error('Erro na conexão:', err);
+      res.status(500).json({ 
+        success: false, 
+        message: err.message 
+      });
+      return;
     }
 
-    res.status(500).json({ error: errorMessage });
-  }
-});
+    // Listar databases
+    connection.query('SHOW DATABASES', (err, results: any) => {
+      if (err) {
+        res.status(500).json({ 
+          success: false, 
+          message: err.message 
+        });
+        return;
+      }
 
-// Rota para listar tabelas de um banco específico
-app.post('/api/mysql/tables', async (req, res) => {
-  const { host, user, password } = req.body;
-  const database = req.query.database as string;
-  console.log('Listando tabelas para o banco:', database);
-
-  if (!database) {
-    return res.status(400).json({ error: 'Nome do banco de dados é obrigatório' });
-  }
-
-  try {
-    const connection = await mysql.createConnection({
-      host,
-      user,
-      password,
-      database,
-      port: 3306
+      const databases = results.map((row: any) => row.Database);
+      res.json({ 
+        success: true, 
+        databases: databases 
+      });
+      connection.end();
     });
-
-    const [results] = await connection.query('SHOW TABLES');
-    const tables = (results as any[]).map(row => Object.values(row)[0] as string);
-    
-    await connection.end();
-
-    res.json({ tables });
-  } catch (error) {
-    console.error('Erro ao listar tabelas:', error);
-    res.status(500).json({ error: 'Falha ao listar tabelas' });
-  }
+  });
 });
 
-// Rota de teste para verificar se o servidor está rodando
+// Rota para listar tabelas
+app.post('/api/database/get-tables', (req, res) => {
+  const connection = createConnection(req.body);
+  
+  connection.connect((err) => {
+    if (err) {
+      res.status(500).json({ 
+        success: false, 
+        message: err.message 
+      });
+      return;
+    }
+
+    connection.query('SHOW TABLES', (err, results: any) => {
+      if (err) {
+        res.status(500).json({ 
+          success: false, 
+          message: err.message 
+        });
+        return;
+      }
+
+      const tables = results.map((row: any) => Object.values(row)[0]);
+      res.json({ 
+        success: true, 
+        tables: tables 
+      });
+      connection.end();
+    });
+  });
+});
+
+// Rota para buscar dados da tabela
+app.post('/api/database/get-table-data', (req, res) => {
+  const { database, table } = req.body;
+  const connection = createConnection(req.body);
+  
+  connection.connect((err) => {
+    if (err) {
+      console.error('Erro na conexão:', err);
+      res.status(500).json({ 
+        success: false, 
+        message: err.message 
+      });
+      return;
+    }
+
+    // Usando o banco especificado
+    connection.query(`USE ${database}`);
+    
+    // Buscando dados da tabela
+    connection.query(`SELECT * FROM ${table} LIMIT 100`, (err, results) => {
+      if (err) {
+        console.error('Erro ao buscar dados:', err);
+        res.status(500).json({ 
+          success: false, 
+          message: err.message 
+        });
+        return;
+      }
+
+      res.json({ 
+        success: true, 
+        data: results 
+      });
+      connection.end();
+    });
+  });
+});
+
+// Rota de teste
 app.get('/', (req, res) => {
   res.json({ message: 'Servidor está rodando!' });
 });
