@@ -7,8 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Rota para testar conexão e listar bancos de dados
 app.post('/api/mysql/connect', async (req, res) => {
   const { host, user, password } = req.body;
+  console.log('Tentando conectar com:', { host, user });
 
   try {
     const connection = await mysql.createConnection({
@@ -16,6 +18,8 @@ app.post('/api/mysql/connect', async (req, res) => {
       user,
       password
     });
+
+    console.log('Conexão estabelecida com sucesso');
 
     const [results] = await connection.query('SHOW DATABASES');
     const databases = (results as any[]).map(row => row.Database);
@@ -29,9 +33,11 @@ app.post('/api/mysql/connect', async (req, res) => {
   }
 });
 
+// Rota para listar tabelas de um banco específico
 app.post('/api/mysql/tables', async (req, res) => {
   const { host, user, password } = req.body;
   const database = req.query.database as string;
+  console.log('Listando tabelas para o banco:', database);
 
   try {
     const connection = await mysql.createConnection({
