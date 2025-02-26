@@ -4,7 +4,13 @@ import cors from 'cors';
 import mysql from 'mysql2/promise';
 
 const app = express();
-app.use(cors());
+
+// Configuração mais específica do CORS
+app.use(cors({
+  origin: ['http://localhost:8081', 'http://127.0.0.1:8081'],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
 app.use(express.json());
 
 // Rota para testar conexão e listar bancos de dados
@@ -80,4 +86,5 @@ app.post('/api/mysql/tables', async (req, res) => {
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
+  console.log('Aceitando conexões de: http://localhost:8081');
 });
