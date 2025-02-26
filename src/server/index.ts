@@ -12,11 +12,16 @@ app.post('/api/mysql/connect', async (req, res) => {
   const { host, user, password } = req.body;
   console.log('Tentando conectar com:', { host, user });
 
+  if (!host || !user) {
+    return res.status(400).json({ error: 'Host e usuário são obrigatórios' });
+  }
+
   try {
     const connection = await mysql.createConnection({
       host,
       user,
-      password
+      password,
+      port: 3306 // Porta padrão do MySQL
     });
 
     console.log('Conexão estabelecida com sucesso');
@@ -27,9 +32,17 @@ app.post('/api/mysql/connect', async (req, res) => {
     await connection.end();
 
     res.json({ databases });
-  } catch (error) {
-    console.error('Erro na conexão:', error);
-    res.status(500).json({ error: 'Falha na conexão com o banco de dados' });
+  } catch (error: any) {
+    console.error('Erro detalhado na conexão:', error);
+    let errorMessage = 'Falha na conexão com o banco de dados';
+    
+    if (error.code === 'ECONNREFUSED') {
+      errorMessage = 'Não foi possível conectar ao MySQL. Verifique se o serviço está rodando.';
+    } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+      errorMessage = 'Acesso negado. Verifique usuário e senha.';
+    }
+
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -39,12 +52,17 @@ app.post('/api/mysql/tables', async (req, res) => {
   const database = req.query.database as string;
   console.log('Listando tabelas para o banco:', database);
 
+  if (!database) {
+    return res.status(400).json({ error: 'Nome do banco de dados é obrigatório' });
+  }
+
   try {
     const connection = await mysql.createConnection({
       host,
       user,
       password,
-      database
+      database,
+      port: 3306
     });
 
     const [results] = await connection.query('SHOW TABLES');
