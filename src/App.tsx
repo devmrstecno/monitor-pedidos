@@ -90,10 +90,16 @@ function App() {
       });
 
       const data = await response.json();
-      if (data.success && Array.isArray(data.data)) {
-        const filteredItems = data.data.filter((item: CommandItem) => 
+      console.log('Dados recebidos do banco:', data); // Log para debug
+
+      if (data.success && data.data) {
+        // Garantir que data.data é um array
+        const items = Array.isArray(data.data) ? data.data : [data.data];
+        
+        const filteredItems = items.filter((item: CommandItem) => 
           item.localicao_produto === 'COZINHA'
         );
+        console.log('Itens filtrados:', filteredItems); // Log para debug
         setComandaItems(filteredItems);
 
         // Processa os itens filtrados para criar os pedidos
@@ -105,6 +111,8 @@ function App() {
           return acc;
         }, {});
 
+        console.log('Itens agrupados:', groupedItems); // Log para debug
+
         const newOrders: Order[] = Object.entries(groupedItems).map(([cm_numero, items]) => ({
           id: parseInt(cm_numero),
           setor: 'Pratos',
@@ -113,6 +121,7 @@ function App() {
           origin: 'Comanda Mesa'
         }));
 
+        console.log('Novos pedidos:', newOrders); // Log para debug
         setOrders(newOrders);
       }
     } catch (error) {
